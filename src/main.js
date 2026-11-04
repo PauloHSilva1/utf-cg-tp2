@@ -7,6 +7,8 @@ import { criarMoinho } from './moinho.js';
 import { criarPraia } from './praia.js';
 import { criarSquirtle } from './squirtle.js';
 import { criarPalmeiras } from './palmeira.js';
+import { criarConchas } from './conchas.js';
+import { criarCabana } from './cabana.js';
 
 const tela = document.querySelector('#tela');
 
@@ -22,6 +24,8 @@ async function iniciar() {
     const praia = criarPraia(gl, programa);
     const squirtle = criarSquirtle(formas);
     const palmeiras = criarPalmeiras(formas);
+    const conchas = criarConchas(formas);
+    const cabana = criarCabana(formas);
 
     function redimensionar() {
       ajustarTela(gl);
@@ -37,6 +41,8 @@ async function iniciar() {
       chao.desenhar();
       moinho.desenhar(agora / 1000);
       palmeiras.desenhar();
+      cabana.desenhar();
+      conchas.desenhar();
       squirtle.desenhar(agora / 1000);
       praia.desenhar(agora / 1000);
       requestAnimationFrame(desenhar);

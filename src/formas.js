@@ -113,5 +113,51 @@ export function criarFormas(gl, programa) {
     { tom: .6, vertices: [[.45, .04, 0], [1, -.25, 0], [.45, .08, .18]] },
   ]);
 
-  return { cubo, cilindro: criarRedondo(0), aro: criarRedondo(.85), telhado, esfera: criarEsfera(), folha };
+  function criarConcha() {
+    const faces = [];
+    const faixas = 12;
+    const aneis = 8;
+    const anguloMinimo = -1.25;
+    const anguloMaximo = 1.25;
+
+    function ponto(anel, faixa) {
+      const raio = anel / aneis;
+      const angulo = anguloMinimo + (anguloMaximo - anguloMinimo) * faixa / faixas;
+      const borda = .94 + .06 * Math.cos(angulo * faixas * .75);
+      const distancia = raio * borda;
+      const nervura = .035 * Math.cos(angulo * faixas * 2) * raio;
+      return [
+        .72 * distancia * Math.sin(angulo),
+        .035 + .34 * Math.sin(raio * Math.PI / 2) + nervura,
+        -.34 + .92 * distancia * Math.cos(angulo),
+      ];
+    }
+
+    for (let anel = 0; anel < aneis; anel++) {
+      for (let faixa = 0; faixa < faixas; faixa++) {
+        const tom = .82 + .18 * Math.cos((faixa + .5) * Math.PI * 2 / faixas);
+        faces.push({
+          tom,
+          vertices: [
+            ponto(anel, faixa),
+            ponto(anel, faixa + 1),
+            ponto(anel + 1, faixa + 1),
+            ponto(anel + 1, faixa),
+          ],
+        });
+      }
+    }
+
+    return criarMalha(faces);
+  }
+
+  return {
+    cubo,
+    cilindro: criarRedondo(0),
+    aro: criarRedondo(.85),
+    telhado,
+    esfera: criarEsfera(),
+    folha,
+    concha: criarConcha(),
+  };
 }
