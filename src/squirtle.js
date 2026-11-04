@@ -1,4 +1,5 @@
 import { multiplicar, transladar, escalar, girarX, girarY, girarZ } from './matrizes.js';
+import { alturaOnda, inclinacaoOnda } from './ondas.js';
 
 export function criarSquirtle(formas) {
   const azul = [.28, .75, .84];
@@ -13,9 +14,11 @@ export function criarSquirtle(formas) {
   function desenhar(tempo) {
     // Prancha e personagem compartilham o mesmo balanço.
 
-    const lugar = transladar(3 + .3 * Math.sin(tempo * .5), -.22 + .025 * Math.sin(tempo * 2), 8);
-    //muda a orientação da prancha para frente e para trás, simulando o balanço do mar
-    const direcao = multiplicar(lugar, girarY(.4 + .1 * Math.sin(tempo * 2)));
+    const x = 3 + .3 * Math.sin(tempo * .5);
+    const lugar = transladar(x, -.22 + alturaOnda(x, tempo) + .025 * Math.sin(tempo * 2), 8);
+    //muda a orientação da prancha 
+    const inclinacao = Math.atan(inclinacaoOnda(x, tempo));
+    const direcao = multiplicar(multiplicar(lugar, girarZ(inclinacao)), girarY(.4));
     const base = multiplicar(direcao, girarZ(.035 * Math.sin(tempo * 1.8)));
 
     peca(formas.esfera, base, [0, 0, 0], [1.5, .18, 3.4], [.96, .40, .18]);

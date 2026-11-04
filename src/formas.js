@@ -101,5 +101,17 @@ export function criarFormas(gl, programa) {
     return criarMalha(faces);
   }
 
-  return { cubo, cilindro: criarRedondo(0), aro: criarRedondo(.85), telhado, esfera: criarEsfera() };
+  // Folha com uma dobra no meio e a ponta caída.
+  const folha = criarMalha([
+    { tom: 1, vertices: [[0, 0, 0], [.45, .16, 0], [.45, .08, -.18]] },
+    { tom: .8, vertices: [[0, 0, 0], [.45, .08, .18], [.45, .16, 0]] },
+    { tom: 1, vertices: [[.45, .16, 0], [1, -.25, 0], [.45, .08, -.18]] },
+    { tom: .8, vertices: [[.45, .16, 0], [.45, .08, .18], [1, -.25, 0]] },
+    { tom: .6, vertices: [[0, 0, 0], [.45, .08, -.18], [.45, .04, 0]] },
+    { tom: .6, vertices: [[0, 0, 0], [.45, .04, 0], [.45, .08, .18]] },
+    { tom: .6, vertices: [[.45, .04, 0], [.45, .08, -.18], [1, -.25, 0]] },
+    { tom: .6, vertices: [[.45, .04, 0], [1, -.25, 0], [.45, .08, .18]] },
+  ]);
+
+  return { cubo, cilindro: criarRedondo(0), aro: criarRedondo(.85), telhado, esfera: criarEsfera(), folha };
 }
