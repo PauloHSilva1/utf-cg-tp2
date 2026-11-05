@@ -4,39 +4,66 @@ import { criarMouse } from './mouse.js';
 export function criarCamera(gl, programa) {
   const localProjecao = gl.getUniformLocation(programa, 'projecao');
   const localVisao = gl.getUniformLocation(programa, 'visao');
-  const atual = { posicao: [18, 16, 24], alvo: [0, 1, 0], cima: [0, 1, 0] };
+  const alvo = [0, 1, 0];
+  const cima = [0, 1, 0];
   const mouse = criarMouse(gl.canvas);
+  let modo = 1;
+  let distancia = 34;
+  let anguloOrbital = .64;
+  let inclinacaoOrbital = Math.PI / 4;
+  let tempoAtual = 0;
 
-  function mover() {
-    const movimento = mouse.ler();
-    if (!movimento.giro && !movimento.inclinacao && !movimento.zoom) return;
-
-    const [x, y, z] = atual.posicao.map((valor, i) => valor - atual.alvo[i]);
-    // Mouse usa o deslocamento em pixels, sem multiplicar por deltaTime.
-    const angulo = Math.atan2(x, z) - movimento.giro * .005;
-    const distancia = Math.max(8, Math.min(55, Math.hypot(x, y, z) + movimento.zoom * .02));
-    const inclinacao = Math.max(.12, Math.min(Math.PI / 2 - .02,
-      Math.atan2(y, Math.hypot(x, z)) + movimento.inclinacao * .005));
-    const raio = distancia * Math.cos(inclinacao);
-
-    atual.posicao = [
-      atual.alvo[0] + Math.sin(angulo) * raio,
-      atual.alvo[1] + Math.sin(inclinacao) * distancia,
-      atual.alvo[2] + Math.cos(angulo) * raio,
-    ];
-    atual.cima = [0, 1, 0];
-  }
+  window.addEventListener('keydown', evento => {
+    if (evento.key === '1' || evento.key === '2') {
+      const proximoModo = Number(evento.key);
+      if (proximoModo === 2 && modo === 1) {
+        anguloOrbital = .64 + tempoAtual * .15;
+        inclinacaoOrbital = Math.PI / 4;
+      }
+      modo = proximoModo;
+    }
+  });
 
   function atualizar() {
-    mover();
+    const tempo = performance.now() / 1000;
+    tempoAtual = tempo;
+    const movimento = mouse.ler();
+    distancia = Math.max(8, Math.min(55, distancia + movimento.zoom * .02));
+
+    let angulo;
+    let inclinacao;
+    if (modo === 1) {
+      angulo = .64 + tempo * .15;
+      inclinacao = Math.PI / 4;
+    } else {
+      anguloOrbital -= movimento.giro * .005;
+      inclinacaoOrbital = Math.max(.12, Math.min(
+        Math.PI / 2 - .02,
+        inclinacaoOrbital + movimento.inclinacao * .005
+      ));
+      angulo = anguloOrbital;
+      inclinacao = inclinacaoOrbital;
+    }
+
+    const raio = distancia * Math.cos(inclinacao);
+    const posicao = [
+      alvo[0] + Math.sin(angulo) * raio,
+      alvo[1] + Math.sin(inclinacao) * distancia,
+      alvo[2] + Math.cos(angulo) * raio,
+    ];
 
     const proporcao = gl.canvas.width / gl.canvas.height;
     const projecao = perspectiva(Math.PI / 3, proporcao, 0.1, 100);
-    const visao = olharPara(atual.posicao, atual.alvo, atual.cima);
+    const visao = olharPara(posicao, alvo, cima);
 
     gl.uniformMatrix4fv(localProjecao, false, projecao);
     gl.uniformMatrix4fv(localVisao, false, visao);
   }
 
-  return { atualizar };
+  return {
+    atualizar,
+    modoAtual() {
+      return modo;
+    },
+  };
 }
