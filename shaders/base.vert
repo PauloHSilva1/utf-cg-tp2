@@ -3,6 +3,7 @@
 in vec3 posicao;
 in vec2 coordenadaTextura;
 in float influenciaOndas;
+in float profundidadeAgua;
 
 uniform mat4 projecao;
 uniform mat4 visao;
@@ -14,6 +15,7 @@ uniform float frequenciaOnda;
 uniform float tempoOnda;
 
 out vec2 uv;
+out float profundidadeInterpolada;
 
 void main() {
   vec3 posicaoDeformada = posicao;
@@ -22,5 +24,6 @@ void main() {
     posicaoDeformada.y += amplitudeOnda * sin(fase) * influenciaOndas;
   }
   uv = coordenadaTextura;
+  profundidadeInterpolada = profundidadeAgua;
   gl_Position = projecao * visao * modelo * vec4(posicaoDeformada, 1.0);
 }
